@@ -1,13 +1,12 @@
 # set session ####
 
-setwd("C:/Users/keggint/polybox/Eilish/Phylogenies")
+setwd("C:/Users/keggint/polybox/sandbox")
 
 library("phangorn")
-library("ape")
 
 # load data ####
 
-sp.fasta <- read.dna("./Abalistes stellaris.fasta", format = "fasta")
+sp.fasta <- read.dna("./PhyloAnalysis.fas", format = "fasta")
 
 data <- as.phyDat(sp.fasta)
 
