@@ -1,15 +1,14 @@
 # set session ####
 
-setwd("C:/Users/keggint/polybox/L_piscatorius")
-
 library("adegenet")
 library("tidyverse")
 #library("vcfR")
 
+setwd("C:/Users/keggint/polybox/shark/4_output/Cc/7.5")
 
 # load data ####
 
-data <- read.structure("./1mil_5.str")
+data <- read.structure("./populations.stru")
 
 # DAPC ####
 

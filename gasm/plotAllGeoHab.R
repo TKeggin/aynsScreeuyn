@@ -1,4 +1,5 @@
 setwd("C:/Users/keggint/polybox/Zurich/images/gasm")
+setwd("C:/Users/keggint/Documents/GaSM/Input/test")
 
 
 library(tidyverse)
@@ -7,16 +8,15 @@ library(gridExtra)
 temp <- all_geo_hab$temp
 depth <- all_geo_hab$depth
 
-
-tempFill <- temp[,1277]
-depthFill <- depth[,1277]
+tempFill <- temp[,length(colnames(temp))]
+depthFill <- depth[,length(colnames(depth))]
 
 plotTemp <- ggplot(temp, aes(x = x, y = y, fill = tempFill)) +
               geom_tile() +
               scale_fill_continuous(low = "black",
                                     high = "lightgrey",
                                     na.value = "white",
-                                    limits = c(-40,60)) +
+                                    limits = c(-50,60)) +
               xlim(-180,180) +
               ylim(-90,90) +
               coord_fixed() +
@@ -27,8 +27,7 @@ plotDepth <- ggplot(depth, aes(x = x, y = y, fill = depthFill)) +
               geom_tile() +
               scale_fill_continuous(low = "black",
                                     high = "lightgrey",
-                                    na.value = "white",
-                                    limits = c(-200,0)) +
+                                    na.value = "white") +
               xlim(-180,180) +
               ylim(-90,90) +
               coord_fixed() +

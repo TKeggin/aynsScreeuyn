@@ -1,0 +1,5 @@
+
+
+library(raster)
+
+data(volcano)

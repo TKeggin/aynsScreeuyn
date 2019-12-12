@@ -1,15 +1,32 @@
 # set session ####
 
 library(SimRAD)
+library(seqinr)
 
-simseq <- sim.DNAseq(size=1000000, GCfreq=0.433)
+setwd("C:/Users/keggint/polybox/Zurich/data/megafauna/genomes/Myripristis jacobus/")
 
-#TaqI
-cs_5p1 <- "T"
-cs_3p1 <- "CGA"
+# load data ####
 
-#MseI
-cs_5p2 <- "T"
-cs_3p2 <- "TAA"
+data <- ref.DNAseq("./GCA_900302555.1_ASM90030255v1_genomic.fna")
 
-simseq.dig <- insilico.digest(simseq, cs_5p1, cs_3p1, cs_5p2, cs_3p2, verbose = TRUE)
+# set enzymes ####
+
+#Restriction Enzyme 1
+#EcoRI#
+E5 <- "G"
+E3 <- "AATTC"
+
+#Restriction Enzyme 2
+#TaqI #
+T5 <- "T"
+T3 <- "CGA"
+
+# perform digest ####
+
+digest <- insilico.digest(data, E5, E3, T5, T3, verbose = TRUE)
+
+# sandbox ####
+
+test <- as.character("NNNNNGAATTCNNGAATTCNNNNNTCGANNNN")
+
+test.digest <- insilico.digest(test, E5, E3, T5, T3)
