@@ -4,7 +4,7 @@ setwd("Z:/LE_projects/megafauna/data")
 
 library("tidyverse")
 library("readxl")
-library("taxise")
+library("taxize")
 
 #load data ####
 
@@ -19,4 +19,4 @@ speciesSpp <- unique(species$gen_sp)
 tol_resolve(speciesSpp)
 gnr_resolve(speciesSpp[1:2])
 
-classification("Homo sapiens", db = "itis")
+classification("Haemulon vittata", db = "worms")
