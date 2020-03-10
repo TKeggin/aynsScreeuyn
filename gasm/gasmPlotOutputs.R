@@ -1,6 +1,6 @@
 # set session ####
 
-setwd("C:/Users/thoma/Desktop/gasm/output/6d/test5")
+setwd("C:/Users/keggint/Desktop/v0.5.25/output/6d/test15")
 
 library(ape)
 library(tidyverse)
@@ -69,7 +69,7 @@ for(t in timesteps.seq){
   jpeg(file.path("./plots", paste0(sprintf("%04i",t) ,".jpg")), width = 680, height = 480)
     print(ggplot(data = distribution, aes(x=x,y=y)) +
             geom_tile(aes(fill = richness), colour = "lightgrey") +
-            scale_fill_gradientn(colours = rev(terrain.colors(10)), limits = c(0,55)) +
+            scale_fill_gradientn(colours = rev(terrain.colors(10))) + #, limits = c(0,55)) +
             xlim(c(-180,180)) +
             ylim(c(-90,90)) +
             ggtitle(paste0(sprintf("%04i",t))) +
