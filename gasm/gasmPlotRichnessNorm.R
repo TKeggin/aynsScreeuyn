@@ -35,7 +35,7 @@ timesteps.file <- list.files("./species/")
 timesteps.seq  <- seq(0,length(timesteps.file)-1)
 
 for(t in timesteps.seq){
-
+  
   # load data
   species <- readRDS(paste0("./species/species_t_",t,".rds", sep = ""))
   land    <- readRDS(paste0("./landscapes/landscape_t_",t,".rds", sep = ""))
@@ -66,15 +66,15 @@ for(t in timesteps.seq){
   
   # plot and print species richness
   jpeg(file.path("./plots", paste0(sprintf("%04i",t) ,".jpg")), width = 680, height = 480)
-    print(ggplot(data = distribution, aes(x=x,y=y)) +
-            geom_tile(aes(fill = richness), colour = "darkgrey") +
-            scale_fill_gradientn(colours = rev(terrain.colors(10)), limits = c(0,55)) +
-            xlim(c(-180,180)) +
-            ylim(c(-90,90)) +
-            ggtitle(paste0(sprintf("%04i",t))) +
-            coord_fixed() +
-            theme_light()
-    )
+  print(ggplot(data = distribution, aes(x=x,y=y)) +
+          geom_tile(aes(fill = richness), colour = "darkgrey") +
+          scale_fill_gradientn(colours = rev(terrain.colors(10)), limits = c(0,55)) +
+          xlim(c(-180,180)) +
+          ylim(c(-90,90)) +
+          ggtitle(paste0(sprintf("%04i",t))) +
+          coord_fixed() +
+          theme_light()
+  )
   dev.off()
   
   print(paste(t, "complete"))
