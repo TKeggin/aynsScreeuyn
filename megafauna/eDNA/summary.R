@@ -1,6 +1,6 @@
 # set session ####
 
-setwd("Z:/LE_projects/megafauna/data/raw_megafauna_edna/virginie_unsorted/P9_global_AI/P9_global_AI/Rdata")
+setwd("Z:/LE_projects/megafauna/data/processed_megafauna_edna/virginie_unsorted/P9_global_AI/P9_global_AI/Rdata")
 
 library(tidyverse)
 library(reshape)
