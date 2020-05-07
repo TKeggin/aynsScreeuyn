@@ -1,10 +1,10 @@
 # set session ####
-
+library(gridExtra)
 library(tidyverse)
 # plot species richness ####
 
 # create plots directory
-dir.create("./plots")
+dir.create("./plots/")
 
 # read and quantify timesteps
 timesteps.file <- list.files("./species/")
@@ -36,22 +36,35 @@ for(t in timesteps.seq){
   # calculate species richness
   if(dim(distribution)[2]>4){
     richness <- rowSums(!is.na(distribution[,-c(1:3)]))
+    richness[richness == 0] <- NA
   } else {
     richness <- distribution[,4]
   }
-  distribution <- cbind(distribution,richness)
   
-  # plot and print species richness
-  jpeg(file.path("./plots", paste0(sprintf("%04i",t) ,".jpg")), width = 680, height = 480)
-    print(ggplot(data = distribution, aes(x=x,y=y)) +
-            geom_raster(aes(fill = richness)) +
-            scale_fill_gradientn(colours = rev(terrain.colors(10))) +
-            xlim(c(-180,180)) +
-            ylim(c(-90,90)) +
-            ggtitle(paste0(sprintf("%04i",t))) +
-            coord_fixed() +
-            theme_light()
-    )
+  temp <- land$environment[,"temp"]
+  distribution <- cbind(distribution,richness,temp)
+  
+  # plot the bad boy
+  rich <- ggplot(data = distribution, aes(x=x,y=y)) +
+    geom_tile(aes(fill = richness)) +
+    scale_fill_gradient(low  = "#fee6ce",
+                        high = "#e6550d",
+                        na.value = "grey50") +
+    xlim(c(-180,180)) +
+    ylim(c(-90,90)) +
+    ggtitle(land$timestep) +
+    coord_fixed() +
+    theme_light()
+  
+  temp <- ggplot(data = distribution, aes(x=x,y=y)) +
+    geom_tile(aes(fill = temp)) +
+    xlim(c(-180,180)) +
+    ylim(c(-90,90)) +
+    coord_fixed() +
+    theme_light()
+  
+  jpeg(file.path("./plots/", paste0(sprintf("%04i",length(timesteps.seq)-t) ,".jpg")), width = 1360, height = 960)
+    grid.arrange(rich, temp, nrow=2)
   dev.off()
   
   print(paste(t, "complete"))
