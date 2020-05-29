@@ -6,6 +6,8 @@ library(viridis)
 
 landscapes <- readRDS("./landscapes.rds")
 
+plot_names <- seq(dim(landscapes$temp)[2]-3,0)
+
 setwd("./plot")
 
 year <- seq(1200,0)
@@ -43,7 +45,7 @@ for(step in seq(1203,3)){
   grid.arrange(plotTemp, plotDepth, nrow = 2)
   dev.off()
   
-  print(paste(step-3," done"))
+  print(paste(plot_names[step-2]," done"))
 }
 
 
