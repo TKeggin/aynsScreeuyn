@@ -49,7 +49,8 @@ for(t in timesteps.seq){
     geom_tile(aes(fill = richness)) +
     scale_fill_gradient(low  = "#fee6ce",
                         high = "#e6550d",
-                        na.value = "grey50") +
+                        na.value = "grey50",
+                        limits = c(0,10)) +
     xlim(c(-180,180)) +
     ylim(c(-90,90)) +
     ggtitle(land$timestep) +

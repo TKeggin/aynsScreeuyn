@@ -13,7 +13,7 @@ setwd("C:/Users/thoma/OneDrive/Documents/PhD/data/")
 dist <- st_read("./coral_dist/14_001_WCMC008_CoralReefs2018_v4/01_Data/WCMC008_CoralReef2018_Py_v4.shp")
 dist <- st_read("./coral_dist/BufferedPolygons/BufferedPolygons/Reef_AsBufferedPolygon.shp")
 # genesis input
-land <- readRDS("./gasm/landscapes.rds")
+land <- readRDS("D:/genesis/input/1d_2000m_20c/landscapes.rds")
 land <- land$depth[,c(1,2,3)]
 colnames(land)[3] <- "depth"
 land.raster <- rasterFromXYZ(land ,crs = st_crs(dist))

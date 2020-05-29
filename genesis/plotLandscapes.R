@@ -1,13 +1,16 @@
-setwd("D:/genesis/input/1d_all")
+setwd("D:/genesis/input/1d_2000m_20c")
 
 library(tidyverse)
 library(gridExtra)
+library(viridis)
 
 landscapes <- readRDS("./landscapes.rds")
 
 setwd("./plot")
 
-for(step in seq(3,1203)){
+year <- seq(1200,0)
+
+for(step in seq(1203,3)){
   
   tempFill  <- landscapes$temp[,step]
   depthFill <- landscapes$depth[,step]
@@ -15,12 +18,9 @@ for(step in seq(3,1203)){
   plotTemp <- ggplot(landscapes$temp, aes(x = x, y = y, fill = tempFill)) +
     geom_tile() +
     ggtitle(paste(colnames(landscapes$temp[step]),"mya")) +
-    scale_fill_gradient2(low = "darkblue",
-                         #mid = "grey",
-                         high = "darkred",
-                         na.value = "grey30",
-                         midpoint = 0,
-                         limits = c(-41,30)) +
+    scale_fill_viridis(option = "magma",
+                       na.value = "lightgrey",
+                       limits = c(20,30)) +
     xlim(-180,180) +
     ylim(-90,90) +
     coord_fixed() +
@@ -31,16 +31,20 @@ for(step in seq(3,1203)){
     geom_tile() +
     scale_fill_gradient(low = "darkblue",
                         high = "white",
-                        na.value = "grey30",
-                        limits = c(-7610.05,0)) +
+                        na.value = "lightgrey",
+                        limits = c(-2000,0)) +
     xlim(-180,180) +
     ylim(-90,90) +
     coord_fixed() +
     theme_void()
   
-  png(filename=paste0(step-3,".png"))
+  #png(filename=paste0(step-3,".png"))
+  png(filename=paste0(sprintf("%04i",year[step-2]),".png"))
   grid.arrange(plotTemp, plotDepth, nrow = 2)
   dev.off()
   
   print(paste(step-3," done"))
 }
+
+
+
