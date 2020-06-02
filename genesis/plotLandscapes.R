@@ -1,10 +1,16 @@
-setwd("D:/genesis/input/1d_2000m_20c")
+# set session ####
+
+setwd("D:/genesis/input/1d_all_smooth")
 
 library(tidyverse)
 library(gridExtra)
 library(viridis)
 
+# load data ####
+
 landscapes <- readRDS("./landscapes.rds")
+
+# plot ####
 
 setwd("./plot")
 
@@ -20,7 +26,7 @@ for(step in seq(1203,3)){
     ggtitle(paste(colnames(landscapes$temp[step]),"mya")) +
     scale_fill_viridis(option = "magma",
                        na.value = "lightgrey",
-                       limits = c(20,30)) +
+                       limits = c(-31,30)) +
     xlim(-180,180) +
     ylim(-90,90) +
     coord_fixed() +
@@ -32,7 +38,7 @@ for(step in seq(1203,3)){
     scale_fill_gradient(low = "darkblue",
                         high = "white",
                         na.value = "lightgrey",
-                        limits = c(-2000,0)) +
+                        limits = c(-7700,0)) +
     xlim(-180,180) +
     ylim(-90,90) +
     coord_fixed() +
@@ -45,6 +51,47 @@ for(step in seq(1203,3)){
   
   print(paste(step-3," done"))
 }
+
+# latitudinal / longitudinal slices ####
+
+temperature <- landscapes$temp
+
+tempSlice <- filter(temperature, x == 0.5)
+
+tempPlot <- pivot_longer(tempSlice, cols = colnames(tempSlice)[-c(1,2)], names_to = "timestep", values_to = "temperature")
+
+timesteps <- unique(tempPlot$timestep)
+
+tempPlot <- filter(tempPlot, timestep %in% sample(timesteps, 50, replace = FALSE))
+
+ggplot(tempPlot, aes(x = y, y = temperature)) +
+  geom_line(aes(colour = timestep)) +
+  theme_classic()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
