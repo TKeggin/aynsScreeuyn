@@ -1,13 +1,14 @@
 # set session ####
 
-HOME <- "C:/Users/thoma/OneDrive/Documents/PhD/genesis/configs"
+HOME   <- "C:/Users/thoma/OneDrive/Documents/PhD/genesis/configs"
+OUT    <- "1_parameter_exploration"
 setwd(HOME)
 
 library(randtoolbox)
 library(tidyverse)
 
 # set the number of runs
-n <- 10
+n <- 100
 
 # convert the sobol numbers to within defined parameter space
 linMap <- function(x, from, to) {(x - min(x)) / max(x - min(x)) * (to - from) + from}
@@ -24,7 +25,7 @@ colnames(params_table)        <- c("run_id","t_opt","dispRange","speciation", "a
 params_table$seed             <- 1989
 
 # start
-params_table$start            <- 200
+params_table$start            <- 1200
 # 200*0.166 ~ 33 mya
 
 # intial abundance
@@ -53,7 +54,7 @@ params_table[,"abdDeath"]     <- round(linMap(params_table[,"abdDeath"], from=10
 
 # Write table ####
 
-write_csv(params_table, "./1_configs/config_parameters.csv")
+write_csv(params_table, paste0(OUT,"/config_parameters.csv"))
 
 
 # Generate config files ####
@@ -69,41 +70,28 @@ for(i in 1:nrow(params_table)){
   output_dir <- paste0('output/config_', i)
   
   config_i <- readLines('template.R')
-  config_i <- gsub('*.params\\$initialAbundance', params$initialAbundance, config_i)
-  config_i <- gsub('*.params\\$speciation', params$speciation, config_i)
-  config_i <- gsub('*.params\\$t_opt', params$t_opt, config_i)
-  config_i <- gsub('*.params\\$seed', params$seed, config_i)
-  config_i <- gsub('*.params\\$start', params$start, config_i)
-  config_i <- gsub('*.params\\$initialAbundance', params$initialAbundance, config_i)
-  config_i <- gsub('*.params\\$dispRange', params$dispRange, config_i)
-  config_i <- gsub('*.params\\$adaptation', params$adaptation, config_i)
-  config_i <- gsub('*.params\\$abdDeath', params$abdDeath, config_i)
+  config_i <- gsub('params\\$initialAbundance', params$initialAbundance, config_i)
+  config_i <- gsub('params\\$speciation', params$speciation, config_i)
+  config_i <- gsub('params\\$t_opt', params$t_opt, config_i)
+  config_i <- gsub('params\\$seed', params$seed, config_i)
+  config_i <- gsub('params\\$start', params$start, config_i)
+  config_i <- gsub('params\\$dispRange', params$dispRange, config_i)
+  config_i <- gsub('params\\$adaptation', params$adaptation, config_i)
+  config_i <- gsub('params\\$abdDeath', params$abdDeath, config_i)
   
-  setwd("./1_configs")
+  setwd(OUT)
   writeLines(config_i, paste0(i, '.R'))
 
 }
 
 #create bat file
-run_head <- '@runAsMultiple,@Node_NODE13'
+run_head    <- '@runAsMultiple,@Node_NODE13'
 script_name <- 'run_GaSM.R'
-r_version <- "/_shared/R3.6.1/r-with-tools.bat"
-config_dir <- paste0(1:50, '.R')
-input_dir <- '-i ../input/1d_2000m_17c/'
-output_dir <- '-o output/1d_2000m_17c/'
-other_par <- '-s all'
+r_version   <- "/_shared/R3.6.1/r-with-tools.bat"
+config_dir  <- paste0('-c config/',OUT,'/',1:nrow(params_table), '.R')
+input_dir   <- '-i ../input/1d_2000m_17c/'
+output_dir  <- '-o output/1d_2000m_17c/'
+other_par   <- '-s all'
 
-run_body <- paste(r_version, script_name, config_dir, input_dir, output_dir, other_par)
-write(c(run_head, run_body), file='1_configs_1-50.bat')
-
-#create bat file
-run_head <- '@runAsMultiple,@Node_NODE14'
-script_name <- 'run_GaSM.R'
-r_version <- "/_shared/R3.6.1/r-with-tools.bat"
-config_dir <- paste0(1:50, '.R')
-input_dir <- '-i ../input/1d_2000m_17c/'
-output_dir <- '-o output/1d_2000m_17c/'
-other_par <- '-s all'
-
-run_body <- paste(r_version, script_name, config_dir, input_dir, output_dir, other_par)
-write(c(run_head, run_body), file='1_configs_50-100.bat')
+run_body <- paste(r_version, script_name, config_dir, input_dir, output_dir, other_par, "-v")
+write(c(run_head, run_body), file='1_configs.bat')

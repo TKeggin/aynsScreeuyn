@@ -10,7 +10,7 @@ land_all <- readRDS("D:/genesis/input/1d_all/landscapes.rds")
 
 # read and quantify timesteps
 timesteps.file <- list.files("./richness/")
-timesteps.seq  <- seq(802,1200)
+timesteps.seq  <- 0:200
 
 for(t in timesteps.seq){
   

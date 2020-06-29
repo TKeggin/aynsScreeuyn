@@ -2,7 +2,7 @@
 
 library(tidyverse)
 
-setwd("Y:/TKeggin/genesis/v0.9.9/output/6d_2000m_20c/test/")
+setwd("Y:/TKeggin/genesis/v0.9.9/output/1d_2000m_17c/test/")
 
 # choose variables
 timestep  <- 0
@@ -30,8 +30,8 @@ ggplot(data, aes(x = x, y = y)) +
 
 # looped ####
 
-timesteps <- seq(0,length(list.files("./landscapes/"))-1)
-vid.order <- rev(timesteps)+1
+timesteps <- seq(0,length(list.files("./landscapes/")))
+vid.order <- rev(timesteps)
 
 for(step in timesteps){
   
@@ -55,7 +55,7 @@ for(step in timesteps){
               coord_fixed() +
               theme_void()
   
-  jpeg(file.path("C:/Users/thoma/OneDrive/Documents/Marrey/Output/test_plots/", paste0(sprintf("%04i",vid.order[step]),".jpg")), width = 1360, height = 960)
+  jpeg(file.path("plots/", paste0(sprintf("%04i",vid.order[step]),".jpg")), width = 1360, height = 960)
   print(plot)
   dev.off()
   
