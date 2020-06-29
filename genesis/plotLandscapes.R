@@ -1,6 +1,6 @@
 # set session ####
 
-setwd("D:/genesis/input/1d_all_smooth")
+setwd("D:/genesis/input/interpolation_bugged/1d_2000m_15c/")
 
 library(tidyverse)
 library(gridExtra)
@@ -26,7 +26,7 @@ for(step in seq(1203,3)){
     ggtitle(paste(colnames(landscapes$temp[step]),"mya")) +
     scale_fill_viridis(option = "magma",
                        na.value = "lightgrey",
-                       limits = c(-31,30)) +
+                       limits = c(15,30)) +
     xlim(-180,180) +
     ylim(-90,90) +
     coord_fixed() +
@@ -38,7 +38,7 @@ for(step in seq(1203,3)){
     scale_fill_gradient(low = "darkblue",
                         high = "white",
                         na.value = "lightgrey",
-                        limits = c(-7700,0)) +
+                        limits = c(-2000,0)) +
     xlim(-180,180) +
     ylim(-90,90) +
     coord_fixed() +
