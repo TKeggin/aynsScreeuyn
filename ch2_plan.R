@@ -33,6 +33,6 @@ ggplot() +
   geom_path(data = car, aes(x = spatial, y = `dispersal/diversity_R2`, group = level, colour = level), size = 1, linetype = "solid") +
   geom_hline(yintercept = 0, linetype = "dotted", alpha = 0.5) +
   ylim(c(-1,1)) +
-  ylab("dispersal/diversity") +
+  ylab("R-squared") +
   xlab("spatial scale") +
   theme_classic()
