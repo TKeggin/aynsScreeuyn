@@ -5,15 +5,19 @@ library(readxl)
 
 # load data ####
 
-gene.tree <- read.tree(file = "M:/data/processed_phylogenetic_trees/All Phylo Sequences.newick")
-species   <- read_excel("C:/Users/keggint/Desktop/species.xlsx")
+camille.tree   <- readRDS("C:/Users/keggint/Desktop/Eilish.Fishes.Trees.rds")
+molecular.tree <- camille.tree$Molecular.Tree.1063sp
+#gene.tree     <- read.tree(file = "M:/data/processed_phylogenetic_trees/All Phylo Sequences.newick")
+species        <- read_excel("C:/Users/keggint/Desktop/species.xlsx")
 
 # wrangle data ####
 
-sub("*_","",gene.tree$tip.label)
+species  <- c(species$caribbean,species$wio)
+species <- gsub(" ","_",species)
 
-spp  <- c(spp$caribbean,spp$wio)
-test <- keep.tip(data,spp)
+camille.names <- molecular.tree$tip.label
+
+test <- keep.tip(molecular.tree,species)
 
 # plot data ####
 
