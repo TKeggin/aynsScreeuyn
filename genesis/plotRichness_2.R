@@ -2,15 +2,12 @@
 library(tidyverse)
 library(ggnewscale)
 
-# create plots directory
-dir.create("./plots/")
-
 # load all sea
 land_all <- readRDS("D:/genesis/input/1d_all/landscapes.rds")
 
 # read and quantify timesteps
 timesteps.file <- list.files("./richness/")
-timesteps.seq  <- 0:200
+timesteps.seq  <- 0:length(timesteps.file)
 
 for(t in timesteps.seq){
   
@@ -18,7 +15,7 @@ for(t in timesteps.seq){
   richness <- readRDS(paste0("./richness/richness_t_",t,".rds", sep = ""))
   land     <- readRDS(paste0("./landscapes/landscape_t_",t,".rds", sep = ""))
   
-  coords <- data.frame(land$coordinates)
+  coords   <- data.frame(land$coordinates)
   richness <- richness[match(rownames(coords),names(richness))]
   
   data <- cbind(coords,richness)
@@ -49,7 +46,7 @@ for(t in timesteps.seq){
     coord_fixed() +
     theme_void()
   
-  jpeg(file.path(paste0("./plots/",paste0(sprintf("%04i",t)),".jpg")), width = 1360, height = 960)
+  jpeg(file.path(paste0("./plots/",land$timestep,".jpg")), width = 1360, height = 960)
   print(rich)
   dev.off()
   
