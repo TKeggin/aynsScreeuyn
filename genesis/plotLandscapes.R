@@ -50,7 +50,7 @@ for(step in seq(from = 3, to = 1203, length.out = 6)){
   grid.arrange(plotTemp, plotDepth, nrow = 2, top = paste(colnames(landscapes$temp[step]),"mya"))
   dev.off()
   
-  print(paste(step-3," done"))
+  print(paste(plot_names[step-2]," done"))
 }
 
 # latitudinal / longitudinal slices ####
