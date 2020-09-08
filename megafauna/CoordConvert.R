@@ -1,6 +1,6 @@
 # set session ####
 
-setwd("Z:/LE_projects/megafauna/data/sandbox")
+setwd("M:/data/temp_customs")
 
 library("tidyverse")
 library("readxl")
@@ -8,20 +8,24 @@ library("measurements")
 
 # load data ####
 
-data <- read_excel("./Browse samples.xlsx")
+data <- read_excel("./metadata_eDNA_Svalbard_MJ.xlsx", sheet = 2)
 
 # convert coordinates ####
 
-data$latitude <-  gsub('°',' ', data$latitude)
-data$longitude <- gsub('°',' ', data$longitude)
-data$latitude <-  gsub('\'',' ', data$latitude)
-data$longitude <- gsub('°',' ', data$longitude)
+for(i in c("latitude_start","longitude_start","latitude_end","longitude_end")){
+  
+  data[i] <- gsub('°',' ', data[[i]])
+  data[i] <- gsub('\\.',' ', data[[i]])
+  data[i] <- gsub('N','', data[[i]])
+  data[i] <- gsub('E','-', data[[i]])
+  
+  data[i] <- conv_unit(data[[i]], from = 'deg_min_sec', to = 'dec_deg')
+  
+}
 
-data$latitude = measurements::conv_unit(data$latitude, from = 'deg_dec_min', to = 'dec_deg')
-data$longitude = measurements::conv_unit(data$longitude, from = 'deg_dec_min', to = 'dec_deg')
 
-data$latitude <- -as.numeric(data$latitude)
-data$longitude <- as.numeric(data$longitude)
+
+
 
 # output data
 

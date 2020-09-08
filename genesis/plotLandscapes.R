@@ -16,7 +16,7 @@ setwd("./plot")
 
 year <- seq(1200,0)
 
-for(step in seq(from = 3, to = 1203, length.out = 6)){
+for(step in 3:1203){
   
   temperature  <- landscapes$temp[,step]
   depth        <- landscapes$depth[,step]
@@ -45,29 +45,28 @@ for(step in seq(from = 3, to = 1203, length.out = 6)){
     coord_fixed() +
     theme_void()
   
-  #png(filename=paste0(step-3,".png"))
   png(filename=paste0(sprintf("%04i",year[step-2]),".png"))
   grid.arrange(plotTemp, plotDepth, nrow = 2, top = paste(colnames(landscapes$temp[step]),"mya"))
   dev.off()
   
-  print(paste(plot_names[step-2]," done"))
+  print(paste(colnames(landscapes$temp)[step]," done"))
 }
 
 # latitudinal / longitudinal slices ####
 
-temperature <- landscapes$temp
+#temperature <- landscapes$temp
 
-tempSlice <- filter(temperature, x == 0.5)
+#tempSlice <- filter(temperature, x == 0.5)
 
-tempPlot <- pivot_longer(tempSlice, cols = colnames(tempSlice)[-c(1,2)], names_to = "timestep", values_to = "temperature")
+#tempPlot <- pivot_longer(tempSlice, cols = colnames(tempSlice)[-c(1,2)], names_to = "timestep", values_to = "temperature")
 
-timesteps <- unique(tempPlot$timestep)
+#timesteps <- unique(tempPlot$timestep)
 
-tempPlot <- filter(tempPlot, timestep %in% sample(timesteps, 50, replace = FALSE))
+#tempPlot <- filter(tempPlot, timestep %in% sample(timesteps, 50, replace = FALSE))
 
-ggplot(tempPlot, aes(x = y, y = temperature)) +
-  geom_line(aes(colour = timestep)) +
-  theme_classic()
+#ggplot(tempPlot, aes(x = y, y = temperature)) +
+ # geom_line(aes(colour = timestep)) +
+  #theme_classic()
 
 
 

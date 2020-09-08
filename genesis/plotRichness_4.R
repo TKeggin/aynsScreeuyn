@@ -5,7 +5,7 @@ plot.option <- "last" # "last" or "all"
 #
 
 # set session ####
-main.dir <- "Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/2_tolerance"
+main.dir <- "Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/1.1_dispersal"
 setwd(main.dir)
 
 library(tidyverse)
@@ -49,19 +49,15 @@ for(run in runs.file){
     # plot time
     rich <- ggplot() +
       # plot depth
-      geom_tile(data = bathy, aes(x=x,y=y,fill = depth)) +
-      scale_fill_gradient("depth",
-                          low  = "#617190",
-                          high = "#baccf0",
-                          na.value = "white") +
-      new_scale_fill() +
+      #geom_tile(data = bathy, aes(x=x,y=y,fill = depth)) +
+      #scale_fill_gradient("depth",
+      #                    low  = "#617190",
+      #                    high = "#baccf0",
+      #                    na.value = "white") +
+      #new_scale_fill() +
       # plot richness
-      geom_tile(data = data, aes(x=x,y=y,fill = richness), colour = "#2e2e2e", size = 0.2) +
-      scale_fill_gradient("richness",
-                          low  = "#ff9b8b",
-                          high = "#ff2a00",
-                          na.value = "transparent") +#,
-      #limits = c(0,2)) +
+      geom_tile(data = data, aes(x=x,y=y,fill = richness), size = 0.2) + #colour = "#2e2e2e", 
+      scale_fill_viridis_c() +
       xlim(c(-180,180)) +
       ylim(c(-90,90)) +
       ggtitle(land$timestep) +

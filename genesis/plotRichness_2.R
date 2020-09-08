@@ -1,13 +1,14 @@
 # set session ####
+#setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/1_dispersal/10")
 library(tidyverse)
 library(ggnewscale)
 
 # load all sea
-land_all <- readRDS("E:/genesis/input/1d_all/landscapes.rds")
+land_all <- readRDS("D:/genesis/input/1d_all/landscapes.rds")
 
 # read and quantify timesteps
 timesteps.file <- list.files("./richness/")
-timesteps.seq  <- 0:length(timesteps.file)
+timesteps.seq  <- seq(min(parse_number(timesteps.file)),max(parse_number(timesteps.file)))
 
 for(t in timesteps.seq){
   
@@ -46,7 +47,7 @@ for(t in timesteps.seq){
     coord_fixed() +
     theme_void()
   
-  jpeg(file.path(paste0("./plots/",land$timestep,".jpg")), width = 1360, height = 960)
+  jpeg(file.path(paste0("./plots/",sprintf("%04i",t),".jpg")), width = 1360, height = 960)
   print(rich)
   dev.off()
   

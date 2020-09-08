@@ -1,6 +1,6 @@
 # set session ####
 
-HOME <- "C:/Users/keggint/Desktop/psuedo-genesis/1_parameter_exploration"
+HOME <- "C:/Users/thoma/OneDrive/Documents/PhD/genesis/configs/1_dispersal"
 setwd(HOME)
 
 library(randtoolbox)
@@ -30,8 +30,8 @@ colnames(params_table)        <- c("run_id",
 params_table$seed             <- 1989
 
 # start
-params_table$start            <- 1200
-# 200*0.166 ~ 33 mya
+params_table$start            <- 390
+# 390*0.166 ~ 65 mya
 
 # intial abundance
 params_table$initialAbundance <- 100
@@ -89,10 +89,10 @@ for(i in 1:nrow(params_table)){
 run_head <- '@runAsMultiple,@Node_NODE14'
 script_name <- 'run_genesis.R'
 r_version <- "/_shared/R3.6.1/r-with-tools.bat"
-config_dir <- paste0("-c ./config/1.2_parameter_exploration/", 1:dim(params_table)[1], '.R')
+config_dir <- paste0("-c ./config/1_dispersal/", 1:dim(params_table)[1], '.R')
 input_dir <- '-i ../input/1d_2000m_17c/'
 output_dir <- '-o output/1d_2000m_17c/'
 other_par <- '-s all -v'
 
 run_body <- paste(r_version, script_name, config_dir, input_dir, output_dir, other_par)
-write(c(run_head, run_body), file='1.2_parameter_exploration.bat')
+write(c(run_head, run_body), file='1_dispersal.bat')
