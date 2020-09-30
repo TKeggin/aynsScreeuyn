@@ -1,18 +1,21 @@
 # set session ####
 library(tidyverse)
 
+setwd("C:/Users/thoma/OneDrive/Documents/PhD/genesis/test_environment/output/6d_all/test/")
+
 # create plots directory
 dir.create("./plots/traits")
 
 # read and quantify timesteps
-timesteps.file <- list.files("./species/")
-timesteps.seq  <- 0:length(timesteps.file)
+timesteps.file <- list.files("./species")
+timesteps.seq  <- seq(min(parse_number(timesteps.file)),max(parse_number(timesteps.file)))
 
 for(t in timesteps.seq){
   
   # load species data
-  species <- readRDS(paste0("./species/species_t_",t,".rds", sep = ""))
-  land    <- readRDS(paste0("./landscapes/landscape_t_",t,".rds", sep = ""))
+  species   <- readRDS(paste0("./species/species_t_",t,".rds", sep = ""))
+  land      <- readRDS(paste0("./landscapes/landscape_t_",t,".rds", sep = ""))
+  abundance <- readRDS(paste0("./abundance/abundance_t_",t,".rds", sep = ""))
   
   # vector of all environmental temperature values
   t_env <- land$environment[,"temp"]

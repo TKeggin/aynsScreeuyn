@@ -1,19 +1,19 @@
-
+#
 # Plots all the richnesses in a directory of a batch of run outputs.
 # You can choose to either plot all steps, or just the last one.
-plot.option <- "last" # "last" or "all"
-
+plot.option <- "all" # "last" or "all"
+#
 
 # set session ####
-#main.dir <- "Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all"
-main.dir <- "C:/Users/thoma/OneDrive/Documents/PhD/genesis/test_environment/output/1d_2000m_17c/"
+#main.dir <- "Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/1.1_dispersal"
+main.dir <- "C:/Users/thoma/OneDrive/Documents/PhD/genesis/test_environment/output/6d_all/"
 setwd(main.dir)
 
 library(tidyverse)
 library(ggnewscale)
 
 # load all sea
-land_all <- readRDS("D:/genesis/input/1d_all/landscapes.rds")
+land_all <- readRDS("D:/genesis/input/6d_all/landscapes.rds")
 
 # list all the runs
 runs.file <- list.files("./")
@@ -35,29 +35,21 @@ for(run in runs.file){
   for(t in timesteps.seq){
     
     # load and wrangle data
-    richness <- readRDS(paste0("./richness/richness_t_",t,".rds", sep = ""))
+    species  <- readRDS(paste0("./species/species_t_",t,".rds", sep = ""))
     land     <- readRDS(paste0("./landscapes/landscape_t_",t,".rds", sep = ""))
     
     coords   <- data.frame(land$coordinates)
-    richness <- richness[match(rownames(coords),names(richness))]
+    temp     <- land_all$temp[,t]
+    names(temp) <- row.names(land_all$temp)
+    suit     <- -sqrt((temp-24)^2)
     
-    data <- cbind(coords,richness)
-    data$richness[data$richness == 0] <- NA
+    suit <- suit[match(rownames(coords),names(suit))]
     
-    bathy <- land_all$depth[,c(1,2,t+3)]
-    colnames(bathy) <- c("x","y","depth")
+    data <- cbind(coords,suit)
     
     # plot time
     rich <- ggplot() +
-      # plot depth
-      #geom_tile(data = bathy, aes(x=x,y=y,fill = depth)) +
-      #scale_fill_gradient("depth",
-      #                    low  = "#617190",
-      #                    high = "#baccf0",
-      #                    na.value = "white") +
-      #new_scale_fill() +
-      # plot richness
-      geom_tile(data = data, aes(x=x,y=y,fill = richness), size = 0.2) + #colour = "#2e2e2e", 
+      geom_tile(data = data, aes(x=x,y=y,fill = suit), size = 0.2) + #colour = "#2e2e2e", 
       scale_fill_viridis_c() +
       xlim(c(-180,180)) +
       ylim(c(-90,90)) +
@@ -65,7 +57,7 @@ for(run in runs.file){
       coord_fixed() +
       theme_void()
     
-    jpeg(file.path(paste0("./plots/",sprintf("%04i",t),".jpg")), width = 1360, height = 960)
+    jpeg(file.path(paste0("./plots/suitability/",sprintf("%04i",t),".jpg")), width = 1360, height = 960)
     print(rich)
     dev.off()
     

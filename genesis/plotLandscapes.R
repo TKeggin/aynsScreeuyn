@@ -1,6 +1,6 @@
 # set session ####
 
-setwd("D:/genesis/input/1d_all/")
+setwd("D:/genesis/input/6d_all/")
 
 library(tidyverse)
 library(gridExtra)
