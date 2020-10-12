@@ -2,64 +2,98 @@
 
 library(tidyverse)
 
-setwd("Y:/TKeggin/genesis/v0.9.9/output/1d_2000m_17c/test/")
+setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all/23")
+timestep <- 0
 
-# choose variables
-timestep  <- 0
-speciesNo <- 1
-
-# load and wrangle data ####
-
+richness  <- readRDS(paste0("./richness/richness_t_",timestep,".rds"))
+species   <- readRDS(paste0("./species/species_t_",timestep,".rds"))
+summary   <- readRDS("sgen3sis.rds")
 landscape <- readRDS(paste0("./landscapes/landscape_t_",timestep,".rds"))
-species   <- readRDS(paste0("./species/species_t_",timestep,".rds"))[[1]]
+coords    <- landscape$coordinates
 
-coords <- data.frame(landscape$coordinates)
-clusts <- species$divergence$clusters
-clusts <- clusts[match(rownames(coords),names(clusts))]
 
-coords$clust <- as.factor(clusts)
+# per species
+clusters_sp <- c()
+for(sp in 1:length(species)){
+  x        <- species[[sp]]$divergence$index
+  clusters_sp <- c(clusters_sp,length(unique(x)))
+}
 
-data <- coords
+clusters_total <- sum(clusters_sp)
 
-# plot clusters ####
+# create a presence/absence dataframe ####
+pa_dataframe             <- data.frame(matrix(0,nrow=length(landscape$coordinates[,1]), ncol=(length(species)+2))) # create a dataframe
+pa_dataframe[,1:2]       <- landscape$coordinates # add the coordinate information
+rownames(pa_dataframe)   <- rownames(landscape$coordinates) # set rownames as cell IDs
+names(pa_dataframe)[1:2] <- c("x", "y")
+names(pa_dataframe)[3:length(pa_dataframe)] <- unlist(lapply(species, FUN=function(x){x$id})) # set column names as species IDs
+# fill in the p/a data
+for(i in 3:(length(pa_dataframe[1,]))){
+  pa_dataframe[names(species[[i-2]]$abundance),i] <- 1
+}
 
-ggplot(data, aes(x = x, y = y)) +
-  geom_tile(aes(fill = clust)) +
+
+# determine which species inhabits a cell ####
+no_cells <- dim(pa_dataframe)[1]
+cells <- list()
+
+for(i in 1:no_cells){
+  present_species <- which(pa_dataframe[i,] == 1)-2
+  cells[[i]]  <- present_species
+}
+
+# determine the number of clusters each species has that is present in a cell
+cluster_diversity <- c()
+for(i in 1:no_cells){
+  
+  x <- sum(clusters_sp[cells[[i]]]) # for all the species in a cell, sum up their numbers of clusters
+  cluster_diversity <- c(cluster_diversity,x)
+}
+
+# compare cluster diversity to species diversity
+
+cluster_normalised <- cluster_diversity/max(cluster_diversity)
+richness_normalised <- richness/max(richness)
+
+continuity <- sqrt((cluster_normalised-richness_normalised)^2)
+
+
+# summarise ####
+
+summary <- data.frame(coords,richness,cluster_diversity, continuity)
+  
+ggplot(summary, aes(x = richness, y = cluster_diversity)) +
+  scale_colour_viridis_c(direction = -1) +
+  #scale_colour_gradient2(low  = "yellow",high = "green",mid = "blue") +
+  geom_point(aes(colour = continuity))
+
+ggplot(summary, aes(x=x,y=y)) +
+  geom_tile(aes(colour=richness)) +
+  scale_fill_viridis_c() +
   coord_fixed() +
   theme_void()
 
-# looped ####
+ggplot(summary, aes(x=x,y=y)) +
+  geom_tile(aes(fill=cluster_diversity)) +
+  scale_fill_viridis_c() +
+  coord_fixed() +
+  theme_void()
 
-timesteps <- seq(0,length(list.files("./landscapes/")))
-vid.order <- rev(timesteps)
+ggplot(summary, aes(x=x,y=y)) +
+  geom_tile(aes(fill=continuity)) +
+  scale_fill_viridis_c(direction=-1) +
+  coord_fixed() +
+  theme_void()
 
-for(step in timesteps){
   
-  # load and wrangle data
-  landscape <- readRDS(paste0("./landscapes/landscape_t_",step,".rds"))
-  species   <- readRDS(paste0("./species/species_t_",timestep,".rds"))[[1]]
-  
-  coords <- data.frame(landscape$coordinates)
-  clusts <- species$divergence$clusters
-  clusts <- clusts[match(rownames(coords),names(clusts))]
-  
-  coords$clust <- as.factor(clusts)
-  
-  data <- coords
-  
-  # plot clusters
-  
-  plot <- ggplot(data, aes(x = x, y = y)) +
-              geom_tile(aes(fill = clust)) +
-              ggtitle(landscape$timestep) +
-              coord_fixed() +
-              theme_void()
-  
-  jpeg(file.path("plots/", paste0(sprintf("%04i",vid.order[step]),".jpg")), width = 1360, height = 960)
-  print(plot)
-  dev.off()
-  
-  print(paste(step,"/",length(timesteps)-1))
-  
-  
-}
+
+
+
+
+
+
+
+
+
+
+

@@ -5,8 +5,27 @@ setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all")
 library(tidyverse)
 library(gen3sis)
 library(ape)
+library(raster)
 
-# create vectors
+# set up true richness df for comparison ####
+load("R:/data/raw_reefish_fish.range.global/mat_pa_cam_vs_gaspar.Rdata") # load gaspar richness data
+ugly_mat_pa$richness <- rowSums(ugly_mat_pa[,-c(1,2)])
+
+ugly_mat_pa <- ugly_mat_pa[,c("Longitude","Latitude","richness")]
+rich <- filter(ugly_mat_pa, richness > 1)
+rm(ugly_mat_pa)
+
+# mask with input landscape.
+land <- readRDS("D:/genesis/input/1d_2000m_17c/landscapes.rds")$temp[,c(1,2,3)]
+#land <- filter(land, land[,3] > 1)
+land.raster <- rasterFromXYZ(land) # input raster
+rich.raster <- rasterFromXYZ(rich) # richness raster
+rich.raster <- resample(rich.raster,land.raster) # match extents
+rich.masked <- mask(rich.raster, land.raster) # mask richness by the input
+
+rich.true <- as.data.frame(rich.masked, xy = TRUE)
+
+# create vectors ####
 species.total <- c()
 species.surviving <- c()
 
@@ -25,10 +44,11 @@ richness.max <- c()
 richness.min <- c()
 richness.range <- c()
 richness.sd <- c()
+richness.discrepancy <- c()
 
 clusters.total <- c()
 
-# set loop
+# loop time ####
 run_id   <- list.files()[-21]
 timestep <- 0
 
@@ -84,6 +104,23 @@ for(i in 1:length(run_id)){
     richness.range <- c(richness.range,richness.max[i]-richness.min[i])
     richness.sd    <- c(richness.sd,sd(richness))
     
+    # richness discrepancy ####
+    # load in output
+    rich.out <- data.frame(coords,richness)
+    
+    # merge everything
+    rich.all <- merge(rich.out,rich.true, by = "row.names", all.x = TRUE)
+    rich.all <- rich.all[,c(1,2,3,4,7)]
+    colnames(rich.all) <- c("cell","x","y","rich.out","rich.true")
+    rich.all <- filter(rich.all, !is.na(rich.true))
+    
+    # normalise to 0-1 to make comparable
+    rich.all$rich.true <- rich.all$rich.true/max(rich.all$rich.true)
+    rich.all$rich.out  <- rich.all$rich.out/max(rich.all$rich.out)
+    rich.all$discrepency <- sqrt((rich.all$rich.true-rich.all$rich.out)^2)
+    
+    richness.discrepancy <- c(richness.discrepancy,mean(rich.all$discrepency))
+    
     # cluster ####
     # per species
     clusters.sp <- c()
@@ -110,8 +147,10 @@ for(i in 1:length(run_id)){
     richness.min <-  c(richness.min,NA)
     richness.range <-  c(richness.range,NA)
     richness.sd <-  c(richness.sd,NA)
+    richness.discrepancy <- c(richness.discrepancy, NA)
     
     clusters.total <-  c(clusters.total,NA)
+
   }
   
   
@@ -136,6 +175,7 @@ summary_table <- data.frame(run_id,
                             richness.min,
                             richness.range,
                             richness.sd,
+  richness.discrepancy,
   clusters.total)
 summary_table <- merge(config,summary_table)
 

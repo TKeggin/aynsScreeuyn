@@ -33,21 +33,21 @@ weighted.endemism <- function(x){
 
 # create a presence/absence matrix ####
 
-pa_matrix             <- data.frame(matrix(0,nrow=length(landscape$coordinates[,1]), ncol=(length(species)+2))) # create a matrix
-pa_matrix[,1:2]       <- landscape$coordinates # add the coordinate information
-rownames(pa_matrix)   <- rownames(landscape$coordinates) # set rownames as cell IDs
-names(pa_matrix)[1:2] <- c("x", "y")
-names(pa_matrix)[3:length(pa_matrix)] <- unlist(lapply(species, FUN=function(x){x$id})) # set column names as species IDs
+pa_dataframe             <- data.frame(matrix(0,nrow=length(landscape$coordinates[,1]), ncol=(length(species)+2))) # create a matrix
+pa_dataframe[,1:2]       <- landscape$coordinates # add the coordinate information
+rownames(pa_dataframe)   <- rownames(landscape$coordinates) # set rownames as cell IDs
+names(pa_dataframe)[1:2] <- c("x", "y")
+names(pa_dataframe)[3:length(pa_dataframe)] <- unlist(lapply(species, FUN=function(x){x$id})) # set column names as species IDs
 # fill in the p/a data
-for(i in 3:(length(pa_matrix[1,]))){
-  pa_matrix[names(species[[i-2]]$abundance),i] <- 1
+for(i in 3:(length(pa_dataframe[1,]))){
+  pa_dataframe[names(species[[i-2]]$abundance),i] <- 1
 }
 
 
 
 # calculate endemism ####
-#transpose pa_matrix
-data <- t(pa_matrix)
+#transpose pa_dataframe
+data <- t(pa_dataframe)
 
 
 # calculate species richness per cell
@@ -58,7 +58,7 @@ ranges   <- rowSums(data[-c(1,2),])
 
 # calculate total ranges for all species in a cell
 # who is present in the cell?
-cell <- pa_matrix[101,]
+cell <- pa_dataframe[101,]
 cell[cell == 1]
 
 filter(data = data[-c(1,2,)], data[,'19258'] == 1)
