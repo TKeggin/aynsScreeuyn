@@ -8,7 +8,12 @@
 library(tidyverse)
 
 setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all/48")
-timestep <- 0
+
+# read and quantify timesteps
+timesteps.file <- list.files("./richness/")
+timesteps.seq  <- seq(min(parse_number(timesteps.file)),max(parse_number(timesteps.file)))
+
+for(timestep in timesteps.seq)
 
 richness  <- readRDS(paste0("./richness/richness_t_",timestep,".rds"))
 species   <- readRDS(paste0("./species/species_t_",timestep,".rds"))

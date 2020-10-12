@@ -1,3 +1,9 @@
+#
+# Explore environmental variables associated with a sampling scheme
+# look at overall environmental conditions
+# compare to species distributions/sampling scheme
+# Thomas Keggin (thomas.keggin@usys.ethz.ch)
+#
 # set session ####
 
 setwd("C:/Users/thoma/OneDrive/Documents/PhD/data/bio-oracle/All.Present.Surface.BOv2_1.tif")

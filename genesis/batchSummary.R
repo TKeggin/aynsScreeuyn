@@ -1,3 +1,7 @@
+#
+# This script generates the per run summary metrics of a batch of simulations in an output folder
+# Thomas Keggin (thomas.keggin@usys.ethz.ch)
+#
 # set session ####
 
 setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all")

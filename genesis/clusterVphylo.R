@@ -1,13 +1,13 @@
-#
-# calculate the sum diversity of the species inhabiting each cell
-# compare the cluster diversity to the species richness
-# Thomas Keggin (thomas.keggin@usys.ethz.ch)
+# 
+# script to calculate the phylogenetic vs. cluster diversity per cell
 #
 # set session ####
 
 library(tidyverse)
+library(ape)
+library(PhyloMeasures)
 
-setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all/48")
+setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all/8")
 timestep <- 0
 
 richness  <- readRDS(paste0("./richness/richness_t_",timestep,".rds"))
@@ -55,53 +55,47 @@ for(i in 1:no_cells){
   cluster_diversity <- c(cluster_diversity,x)
 }
 
-# compare cluster diversity to species diversity
+# calculate phylogenetic richness per cell ####
+# load in phylogenetic tree
+phy <- read.nexus("./phy.nex")
+
+# create community matrix for pd calculation (cells x species)
+pa_matrix <- as.matrix(pa_dataframe[,-c(1,2)])
+
+# match the pa_matrix column names to the phy species naming format (1..n to species1...speciesn)
+colnames(pa_matrix) <- paste("species",colnames(pa_matrix), sep = "")
+
+# calculate pd
+pd_faith <- pd.query(phy,pa_matrix)
+pd_mpd   <- mpd.query(phy,pa_matrix)
+
+
+# compare cluster diversity to species diversity ####
 
 cluster_normalised <- cluster_diversity/max(cluster_diversity)
-richness_normalised <- richness/max(richness)
+pd_normalised <- pd_mpd/max(pd_mpd)
 
-continuity <- sqrt((cluster_normalised-richness_normalised)^2)
+continuity <- sqrt((cluster_normalised-pd_normalised)^2)
 
 
 # plot ####
-summary <- data.frame(coords,richness,cluster_diversity, continuity)
-  
-# richness vs cluster_diversity
-ggplot(summary, aes(x = richness, y = cluster_diversity)) +
+plotData <- data.frame(coords,pd_mpd,cluster_diversity, continuity)
+
+# map pd_faith
+ggplot(data = plotData, aes(x=x,y=y)) +
+  geom_tile(aes(fill = pd_mpd)) +
+  scale_fill_viridis_c() +
+  coord_fixed()
+
+# compare pd_faith to cluster_diversity
+ggplot(data = plotData, aes(x=pd_mpd, y=cluster_diversity)) +
   scale_colour_viridis_c(direction = -1) +
-  geom_point(aes(colour = continuity)) +
-  theme_classic()
-
-# map richness
-ggplot(summary, aes(x=x,y=y)) +
-  geom_tile(aes(fill=richness)) +
-  scale_fill_viridis_c() +
-  coord_fixed() +
-  theme_void()
-
-# map cluster diversity
-ggplot(summary, aes(x=x,y=y)) +
-  geom_tile(aes(fill=cluster_diversity)) +
-  scale_fill_viridis_c() +
-  coord_fixed() +
-  theme_void()
+  geom_point(aes(colour = continuity))
 
 # map continuity
-ggplot(summary, aes(x=x,y=y)) +
-  geom_tile(aes(fill=continuity)) +
-  scale_fill_viridis_c(direction=-1) +
-  coord_fixed() +
-  theme_void()
-
-  
-
-
-
-
-
-
-
-
-
+ggplot(data = plotData, aes(x=x,y=y)) +
+  geom_tile(aes(fill = continuity)) +
+  scale_fill_viridis_c(direction = -1) +
+  coord_fixed()
 
 
