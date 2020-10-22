@@ -65,7 +65,7 @@ for(run in runs.file){
       coord_fixed() +
       theme_void()
     
-    jpeg(file.path(paste0("./plots/",sprintf("%04i",t),".jpg")), width = 1360, height = 960)
+    jpeg(file.path(paste0("./plots/",sprintf("%04i",timestep),".jpg")), width = 1360, height = 960)
     print(rich)
     dev.off()
     
