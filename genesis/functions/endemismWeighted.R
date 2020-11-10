@@ -15,7 +15,7 @@ endemismWeighted <- function(species, landscape){
   range_total <- c()
   for(cell in 1:dim(landscape$coordinates)[1]){
     
-    range_total <- c(range_total,sum(species_range[species_present[[cell]]]))
+    range_total <- c(range_total,sum(species_range[species_present[[cell]]$speciesID]))
   }
   names(range_total) <- rownames(landscape$coordinates)
   

@@ -17,6 +17,6 @@ clusterDiversity <- function(pa_dataframe, clusters_total){
     x <- sum(clusters_total[species_present[[i]]$speciesID]) # for all the species in a cell, sum up their numbers of clusters
     cluster_diversity <- c(cluster_diversity,x)
   }
-  
+  cluster_diversity[cluster_diversity == 0] <- NA
   return(cluster_diversity)
 }

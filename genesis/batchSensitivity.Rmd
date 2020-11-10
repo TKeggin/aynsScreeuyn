@@ -1,0 +1,176 @@
+---
+title: "Batch sensitivity analysis"
+output: html_document
+---
+
+Load packages and data.
+The data are summary metrics computed by batchSummary.R
+Remove runs that resulted in no species.
+
+```{r, message = FALSE}
+library(tidyverse)
+library(shapper)
+library(gridExtra)
+
+data <- read_csv("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all/summary_table.csv")
+data <- data %>% filter(species.surviving > 0)
+```
+
+Explore relationships graphically between start parameters and the simulation's discrepancy with observed patterns of species richness.
+Linear regressions are also fitted to each parameter comparison.
+
+```{r, echo = FALSE}
+parameters <- c("t_opt","dispRange","speciation","initialAbundance")
+
+
+for(parameter in parameters){
+  plotData <- data.frame(data$richness.discrepancy,data[,parameter])
+  
+  regression <- lm(plotData[,2] ~ plotData[,1])
+  
+  print(ggplot(data, aes(x=richness.discrepancy, y=plotData[,2]))+
+  labs(y=parameter, x="richness discrepancy") +scale_fill_viridis_c() +
+  geom_point(aes(fill=species.surviving),colour = "black", shape =21, size = 2) +
+    geom_abline(slope = regression$coefficients[2],
+                intercept = regression$coefficients[1]) +
+  theme_classic()
+  )
+}
+
+print(ggplot(data, aes(x=richness.discrepancy, y=species.surviving))+
+        geom_point() +
+labs(y="species.surviving", x="richness discrepancy") +
+scale_colour_viridis_c() +
+theme_classic()
+)
+```
+
+
+Explore combinations of parameters.
+First, need to standardise between 0 and 1 across parameter space.
+Because of the negative relationship found for initial abundance, the standardisation is reversed to make the effect comparable to the other parameters.
+
+```{r}
+dataStandard <- data
+for(parameter in parameters){
+  raw <- data[,parameter]
+  standard <- (raw-min(raw))/(max(raw)-min(raw))
+  data[,paste0(parameter,".norm")] <- standard
+}
+
+data$initialAbundance.norm <- 1-data$initialAbundance.norm
+
+```
+
+Create vectors of pairwise interactions and bind them to the data frame.
+Interaction strength is just the mean of the normalised parameter values for each run.
+
+```{r}
+
+combinations <- combn(paste0(parameters,".norm"),2)
+interactions.pairwise <- c()
+for(i in 1:dim(combinations)[2]){
+  
+  param1 <- combinations[1,i]
+  param2 <- combinations[2,i]
+  
+  combo <- (data[,param1]+data[,param2])/2
+  
+  interaction <- paste0(param1,"_X_",param2)
+  
+  data[,interaction] <- combo
+  interactions.pairwise <- c(interactions.pairwise, interaction)
+}
+
+```
+
+Create vectors of triple-wise interactions and bind them to the data frame.
+Interaction strength is again the mean of the normalised parameter values for each run.
+
+```{r}
+combinations <- combn(paste0(parameters,".norm"),3)
+interactions.triplewise <- c()
+for(i in 1:dim(combinations)[2]){
+  
+  param1 <- combinations[1,i]
+  param2 <- combinations[2,i]
+  param3 <- combinations[3,i]
+  
+  combo <- (data[,param1]+data[,param2]+data[,param3])/3
+  
+  interaction <- paste0(param1,"_X_",param2,"_X_",param3)
+  
+  data[,interaction] <- combo
+  interactions.triplewise <- c(interactions.triplewise, interaction)
+}
+```
+
+
+Explore relationships graphically between pair-/triple-wise interaction values and the richness discrepancy.
+Linear regressions are fitted to each relationship.
+
+```{r, warnings = FALSE}
+
+for(interaction in c(interactions.pairwise,interactions.triplewise)){
+  plotData <- data.frame(data$richness.discrepancy,data[,interaction])
+  
+  regression <- lm(plotData[,2] ~ plotData[,1])
+  
+  print(ggplot(data, aes(x=richness.discrepancy, y=plotData[,2]))+
+  labs(y=interaction, x="richness discrepancy") +
+    scale_fill_viridis_c() +
+    geom_abline(slope = regression$coefficients[2],
+                intercept = regression$coefficients[1]) +
+  geom_point(aes(fill=species.surviving),colour = "black", shape =21, size = 2) +
+  theme_classic())
+}
+
+
+```
+
+Explore relationship of the interaction value of all the parameters and richness discrepancy.
+
+```{r}
+
+
+all_params <- rowSums(data[,paste0(parameters,".norm")])/4
+
+data$interaction_all_params <- all_params
+
+regression <- lm(data$interaction_all_params ~ data$richness.discrepancy)
+
+  print(ggplot(data, aes(x=richness.discrepancy, y=interaction_all_params))+
+  labs(y="interaction_all_params", x="richness discrepancy") +
+    scale_fill_viridis_c() +
+    geom_abline(slope = regression$coefficients[2],
+                intercept = regression$coefficients[1]) +
+  geom_point(aes(fill=species.surviving),colour = "black", shape =21, size = 2) +
+  theme_classic())
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
