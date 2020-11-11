@@ -1,7 +1,7 @@
 #
 # calculate cluster divergence per cell from a presence/absence dataframe
 # returns a vector of the means of all divergences of each species present in a cell
-# dependent on speciesPresent() and speciesDiverge
+# dependent on speciesPresent() and speciesDivergence
 # Thomas Keggin
 #
 

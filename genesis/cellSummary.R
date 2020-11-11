@@ -71,7 +71,14 @@ cell_summary <- data.frame(landscape$coordinates,
                            niche_metrics[,-c(1,2)],
                            t_opt_metrics[,-c(1,2)],
                            diversityVrich,
-                           divergenceVrich)
+                           divergenceVrich) %>% 
+                    filter(!is.na(cluster_diversity)) # remove empty cells
+
+# cluster_divergence
+ggplot(cell_summary, aes(x=x,y=y)) +
+  geom_tile(aes(fill = cluster_divergence)) +
+  scale_fill_viridis_c() +
+  coord_fixed()
 
 # geographic diversity
 ggplot(cell_summary, aes(x=x,y=y)) +
@@ -95,11 +102,6 @@ ggplot(cell_summary, aes(y=cluster_divergence, x=richness)) +
   scale_colour_viridis_c(direction = -1) +
   geom_point(aes(colour = diversityVrich))
 
-# divergence vs richness
-ggplot(cell_summary, aes(y=cluster_divergence, x=richness)) +
-  scale_colour_viridis_c(direction = -1) +
-  geom_point(aes(colour = divergenceVrich))
-
 # phylo_faith vs richness
 ggplot(cell_summary, aes(y=phylo_mean, x=richness)) +
   geom_point()
@@ -110,7 +112,7 @@ plot_ly(cell_summary,
         y = ~cluster_diversity,
         z = ~cluster_divergence,
         opacity = 0.2,
-        color = ~phylo_mean)
+        color = ~phylo_faith)
 
 
 
