@@ -115,6 +115,8 @@ diversity_summary <- merge(diversity, cell_coords)
 #plot_data <- filter(diversity_summary, diversity < 20 & diversity != 0)
 plot_data <- diversity_summary
 
+plot_data <- plot_data %>% filter(diversity > 0.02)
+
 # diversity histogram
 ggplot(plot_data, aes(x=diversity)) +
   geom_histogram(bins = 100)

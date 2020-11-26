@@ -1,0 +1,60 @@
+---
+title: "Batch sensitivity analysis"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Load packages and data.
+The data are summary metrics computed by batchSummary.R
+Remove runs that resulted in no species.
+
+```{r, message = FALSE}
+library(tidyverse)
+library(shapper)
+library(gridExtra)
+library(readxl)
+
+data <- read_csv("C:/Users/thoma/OneDrive/Documents/PhD/chapter_1/summaries/all.csv")
+#data$richness.discrepancy[is.na(data$richness.discrepancy)] <- 1
+data <- data %>% filter(species.surviving > 0)
+```
+
+Explore relationships graphically between start parameters and the simulation's discrepancy with observed patterns of species richness.
+Linear regressions are also fitted to each parameter comparison.
+
+```{r, echo = FALSE}
+parameters <- c("n_width","t_opt","dispRange","speciation","initialAbundance")
+
+
+for(parameter in parameters){
+  plotData <- data.frame(data$richness.discrepancy,data[,parameter])
+  
+  regression <- lm(plotData[,1] ~ plotData[,2])
+  
+  print(ggplot(data, aes(x=plotData[,2], y=richness.discrepancy))+
+    labs(x=parameter, y="richness discrepancy") +
+    #scale_fill_viridis_c() +
+    geom_point(aes(fill=as.factor(batch)),colour = "black", shape =21, size = 2) +
+    geom_abline(slope = regression$coefficients[2],
+                intercept = regression$coefficients[1]) +
+  theme_classic()
+  )
+}
+
+print(ggplot(data, aes(x=richness.discrepancy, y=species.surviving))+
+        geom_point(aes(colour = as.factor(batch))) +
+labs(y="species.surviving", x="richness discrepancy") +
+theme_classic()
+)
+```
+
+```{r}
+plotdata <- data %>% filter(dispRange <5000)
+
+print(ggplot(plotdata, aes(x=dispRange, y=species.surviving))+
+        geom_point(aes(colour = as.factor(batch))) +
+theme_classic()
+)
+```
+

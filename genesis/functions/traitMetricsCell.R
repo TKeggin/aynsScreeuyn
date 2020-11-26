@@ -17,12 +17,12 @@ traitMetricsCell <- function(species,landscape,trait){
   
   # create a data frame of trait values and their associated cell ID
   trait_df           <- data.frame(names(trait_vector),trait_vector)
-  colnames(trait_df) <- c("cell",paste0(trait))
+  colnames(trait_df) <- c("cell","trait")
   
   # calculate trait metrics per cell
-  trait_min   <- trait_df %>% group_by(cell) %>% summarise(min = min(trait_vector))
-  trait_max   <- trait_df %>% group_by(cell) %>% summarise(max = max(trait_vector))
-  trait_sd    <- trait_df %>% group_by(cell) %>% summarise(sd  = sd(trait_vector))
+  trait_min   <- trait_df %>% group_by(cell) %>% summarise(min = min(trait))
+  trait_max   <- trait_df %>% group_by(cell) %>% summarise(max = max(trait))
+  trait_sd    <- trait_df %>% group_by(cell) %>% summarise(sd  = sd(trait))
   
   # amalgamate into a data frame
   trait_df       <- trait_min

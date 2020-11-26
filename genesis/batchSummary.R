@@ -4,7 +4,7 @@
 #
 # set session ####
 
-setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all")
+setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5.3_all")
 
 library(tidyverse)
 library(gen3sis)
@@ -53,7 +53,7 @@ richness.discrepancy <- c()
 clusters.total <- c()
 
 # loop time ####
-run_id   <- list.files()[-21]
+run_id   <- list.files()[-28]
 timestep <- 0
 
 for(i in 1:length(run_id)){
@@ -157,14 +157,15 @@ for(i in 1:length(run_id)){
 
   }
   
+  print(paste("run",i,"done"))
   
   setwd("../")
 }
 
-config <- read_csv("Y:/TKeggin/genesis/v1.0/config/5.1_all/config_parameters.csv")
+config <- read_csv("Y:/TKeggin/genesis/v1.0/config/5.3_all/config_parameters.csv")
 
 summary_table <- data.frame(run_id,
-  species.total,
+                            species.total,
                             species.surviving,
                             t_opt.max,
                             t_opt.min,
@@ -187,16 +188,7 @@ summary_table <- merge(config,summary_table)
 write_csv(summary_table, "./summary_table.csv")
 
 
-# per cell ####
-clusters.cell <- c()
-clusters.spp  <- c()
-for(sp in 1:species.total){
-  x        <- species[[sp]]$divergence$index
-  clusters.cell <- c(clusters.cell,x)
-  clusters.spp  <- c(clusters.spp,rep(sp,length(x)))
-}
-clusters.df           <- data.frame(names(clusters.cell),clusters.cell,clusters.spp)
-colnames(clusters.df) <- c("cell","cluster","species")
+
 
 
 

@@ -5,7 +5,7 @@ plot.option <- "last" # "last" or "all"
 
 
 # set session ####
-#main.dir <- "Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all"
+#main.dir <- "Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5.2_all"
 main.dir <- "C:/Users/thoma/OneDrive/Documents/PhD/genesis/test_environment/output/1d_2000m_17c/"
 setwd(main.dir)
 
@@ -65,7 +65,7 @@ for(run in runs.file){
       coord_fixed() +
       theme_void()
     
-    jpeg(file.path(paste0("./plots/",sprintf("%04i",timestep),".jpg")), width = 1360, height = 960)
+    jpeg(file.path(paste0("./plots/",sprintf("%04i",t),".jpg")), width = 1360, height = 960)
     print(rich)
     dev.off()
     

@@ -11,9 +11,14 @@ Remove runs that resulted in no species.
 library(tidyverse)
 library(shapper)
 library(gridExtra)
+library(readxl)
 
-data <- read_csv("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all/summary_table.csv")
+data <- read_csv("C:/Users/thoma/OneDrive/Documents/PhD/chapter_1/summaries/all.csv")
 data <- data %>% filter(species.surviving > 0)
+data <- data %>% filter(dispRange < 5000)
+data <- data %>% filter(batch_id != 5.2)
+data <- data %>% filter(speciation < 200)
+#data$richness.discrepancy[is.na(data$richness.discrepancy)] <- 1
 ```
 
 Explore relationships graphically between start parameters and the simulation's discrepancy with observed patterns of species richness.
@@ -26,13 +31,15 @@ parameters <- c("t_opt","dispRange","speciation","initialAbundance")
 for(parameter in parameters){
   plotData <- data.frame(data$richness.discrepancy,data[,parameter])
   
-  regression <- lm(plotData[,2] ~ plotData[,1])
+  regression <- lm(plotData[,1] ~ plotData[,2])
   
-  print(ggplot(data, aes(x=richness.discrepancy, y=plotData[,2]))+
-  labs(y=parameter, x="richness discrepancy") +scale_fill_viridis_c() +
-  geom_point(aes(fill=species.surviving),colour = "black", shape =21, size = 2) +
-    geom_abline(slope = regression$coefficients[2],
-                intercept = regression$coefficients[1]) +
+  print(ggplot(data, aes(x=plotData[,2], y=richness.discrepancy))+
+    labs(x=parameter, y="richness discrepancy") +
+    ylim(c(0,1)) +
+    scale_fill_viridis_c() +
+    geom_point(aes(fill=species.surviving),colour = "black", shape =21, size = 2) +
+    #geom_abline(slope = regression$coefficients[2],
+    #            intercept = regression$coefficients[1]) +
   theme_classic()
   )
 }
@@ -40,6 +47,12 @@ for(parameter in parameters){
 print(ggplot(data, aes(x=richness.discrepancy, y=species.surviving))+
         geom_point() +
 labs(y="species.surviving", x="richness discrepancy") +
+scale_colour_viridis_c() +
+theme_classic()
+)
+
+print(ggplot(data, aes(x=speciation, y=species.surviving/species.total))+
+        geom_point() +
 scale_colour_viridis_c() +
 theme_classic()
 )
