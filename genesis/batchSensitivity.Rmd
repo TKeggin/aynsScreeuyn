@@ -14,10 +14,10 @@ library(gridExtra)
 library(readxl)
 
 data <- read_csv("C:/Users/thoma/OneDrive/Documents/PhD/chapter_1/summaries/all.csv")
-data <- data %>% filter(species.surviving > 0)
-data <- data %>% filter(dispRange < 5000)
-data <- data %>% filter(batch_id != 5.2)
-data <- data %>% filter(speciation < 200)
+#data <- data %>% filter(species.surviving > 0)
+#data <- data %>% filter(dispRange < 5000)
+#data <- data %>% filter(batch_id != 5.2)
+#data <- data %>% filter(speciation < 200)
 #data$richness.discrepancy[is.na(data$richness.discrepancy)] <- 1
 ```
 
@@ -46,7 +46,7 @@ for(parameter in parameters){
 
 print(ggplot(data, aes(x=richness.discrepancy, y=species.surviving))+
         geom_point() +
-labs(y="species.surviving", x="richness discrepancy") +
+labs(x="richness.discrepancy", y="species.surviving") +
 scale_colour_viridis_c() +
 theme_classic()
 )

@@ -12,6 +12,7 @@ library(PhyloMeasures)
 library(gen3sis)
 library(plotly)
 
+setwd("D:/genesis/output/5.4_all/120")
 setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5_all/8")
 
 # set timestep
@@ -56,11 +57,17 @@ phylo_faith <- phyloFaith(pa_dataframe,phylo)
 # phylogenetic diversity (mpd)
 phylo_mean <- phyloMean(pa_dataframe,phylo)
 
+# cell range (summed range of all species in a cell)
+cell_range <- cellRange(pa_dataframe,landscape)
+
 # niche metrics
 niche_metrics <- traitMetricsCell(species,landscape,"niche")
 
 # niche vector
 niche_values <- traitValuesCell(species,landscape,"niche")
+
+# within species niche variance per cell
+niche_variance_cell <- traitVarianceCell(pa_dataframe,species,landscape,"niche")
 
 # t_opt diversity
 t_opt_metrics <- traitMetricsCell(species,landscape,"t_opt")
@@ -74,128 +81,85 @@ divergenceVrich <- continuity(cluster_divergence,richness)
 # niche diversity vs richness
 nicheVrich <- continuity(niche_metrics$niche.sd,richness)
 
-# plot ####
+# niche diversity between and within species
+niche_cont <- continuity(sqrt(niche_variance_cell),niche_metrics$niche.sd)
+
+# richness vs phylo_faith
+faithVrich <- continuity(richness,phylo_faith)
+
+# summarise ####
 
 cell_summary <- data.frame(landscape$coordinates,
                            abundance = abundance_cell[,4],
                            cluster_diversity,
                            cluster_divergence,
                            richness,
+                           cell_range,
                            endemism_weighted,
                            phylo_faith,
                            phylo_mean,
                            niche_metrics[,-c(1:3)],
+                           niche_variance_cell,
                            t_opt_metrics[,-c(1:3)],
                            nicheVrich,
                            diversityVrich,
+                           faithVrich,
+                           niche_cont,
                            divergenceVrich) %>% 
                     filter(!is.na(cluster_diversity)) # remove empty cells
 
-# abundance
-ggplot(cell_summary, aes(x=x,y=y)) +
-  geom_tile(aes(fill = abundance/richness)) +
-  scale_fill_viridis_c(direction = -1) +
-  coord_fixed()
+# export ####
 
-ggplot(cell_summary) +
-  geom_point(aes(x=abundance, y=richness, colour=sqrt(y^2))) +
-  scale_colour_viridis_c()
+saveRDS(cell_summary, "./cell_summary.rds")
 
-ggplot(cell_summary) +
-  geom_point(aes(x=abundance, y=y))
+# plot ####
+# variables
+colnames(cell_summary)
 
-ggplot(cell_summary) +
-  geom_point(aes(x=abundance/richness, y=y))
-  
+# filter
+data <- cell_summary
+data <- cell_summary %>% filter(niche.range != 0)
 
-# richness
-ggplot(cell_summary, aes(x = y, y=richness)) +
-  geom_point(aes(colour = abundance/richness)) +
-  scale_colour_viridis_c()
 
-# functional trait by longitude
-test <- filter(cell_summary, !is.na(niche.sd))
+# versus plot
+ggplot(data, aes(x=x, y=richness)) +
+  geom_point() +
+  ggtitle("population divergence vs. species richness") +
+  #geom_point(shape = 21, aes(fill = x)) +
+  #geom_hline(yintercept=0) +
+  scale_fill_viridis_c()
 
-ggplot(cell_summary, aes(x=x, y=niche.range)) +
-  scale_colour_viridis_c() +
-  geom_point(aes(colour=sqrt(y^2)))
-
-# niche trait distribution
-
-plot_me <- niche_values %>% filter(x > -180 & x < 0)
-
-ggplot(plot_me, aes(x=niche, fill=cell)) +
-  geom_density(alpha = 0.01) +
-  theme(legend.position = "none")
-
-ggplot(plot_me, aes(x=niche, fill=cell)) +
-  geom_histogram(bins = 1000) +
-  theme(legend.position = "none")
-
-# geographic divergence
-ggplot(cell_summary, aes(x=x,y=y)) +
-  geom_tile(aes(fill = cluster_divergence)) +
+# geographic plot
+ggplot(cell_summary, aes(x=x, y=y)) +
+  geom_tile(aes(fill = continuity2(cluster_diversity,cell_range))) +
   scale_fill_viridis_c() +
   coord_fixed()
 
-# geographic function-richness continuity
-ggplot(cell_summary, aes(x=x,y=y)) +
-  geom_tile(aes(fill = nicheVrich)) +
-  scale_fill_viridis_c(direction = -1) +
-  coord_fixed()
-
-# geographic diversity-richness continuity
-ggplot(cell_summary, aes(x=x,y=y)) +
-  geom_tile(aes(fill = diversityVrich)) +
-  scale_fill_viridis_c(direction = -1) +
-  coord_fixed()
-
-# geographic functional richness
-# https://onlinelibrary.wiley.com/doi/full/10.1111/j.0030-1299.2005.13886.x#b17
-ggplot(cell_summary, aes(x=x,y=y)) +
-  geom_tile(aes(fill = niche.range)) +
-  scale_fill_viridis_c(direction = 1) +
-  coord_fixed()
-
-# geographic species richness
-ggplot(cell_summary, aes(x=x,y=y)) +
-  geom_tile(aes(fill = richness)) +
-  scale_fill_viridis_c(direction = 1) +
-  coord_fixed()
-
-# function vs richness
-ggplot(cell_summary, aes(y=niche.range, x=richness)) +
-  scale_colour_viridis_c(direction = -1) +
-  geom_point(aes(colour = nicheVrich))
-
-# diversity vs richness
-ggplot(cell_summary, aes(y=cluster_diversity, x=richness)) +
-  scale_colour_viridis_c(direction = -1) +
-  geom_point(aes(colour = diversityVrich))
-
-# geographic divergence
-ggplot(cell_summary, aes(x=x,y=y)) +
-  geom_tile(aes(fill = divergenceVrich)) +
-  scale_fill_viridis_c(direction = -1) +
-  coord_fixed()
-
-# divergence vs richness
-ggplot(cell_summary, aes(y=cluster_divergence, x=richness)) +
-  scale_colour_viridis_c(direction = -1) +
-  geom_point(aes(colour = diversityVrich))
-
-# phylo_faith vs richness
-ggplot(cell_summary, aes(y=phylo_mean, x=richness)) +
-  geom_point()
-
-# diversity/divergence/richness
-plot_ly(cell_summary,
+# 3d plot
+plot_ly(data,
         x = ~richness,
         y = ~cluster_diversity,
         z = ~cluster_divergence,
         opacity = 0.2,
         color = ~phylo_faith)
 
+# abundance
+# richness
+# functional trait by longitude
+# niche trait distribution
+# geographic divergence
+# geographic function-richness continuity
+# geographic diversity-richness continuity
+# geographic functional richness
+# https://onlinelibrary.wiley.com/doi/full/10.1111/j.0030-1299.2005.13886.x#b17
+# geographic species richness
+# function vs richness
+# diversity vs richness
+# geographic divergence
+# divergence vs richness
+# phylo_faith vs richness
+# diversity/divergence/richness
+# geographic weighted endemism
 
 
 

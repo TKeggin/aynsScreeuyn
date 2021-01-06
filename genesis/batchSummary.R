@@ -4,7 +4,7 @@
 #
 # set session ####
 
-setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5.3_all")
+setwd("Y:/TKeggin/genesis/v1.0/output/1d_2000m_17c/5.4_all")
 
 library(tidyverse)
 library(gen3sis)
@@ -162,7 +162,7 @@ for(i in 1:length(run_id)){
   setwd("../")
 }
 
-config <- read_csv("Y:/TKeggin/genesis/v1.0/config/5.3_all/config_parameters.csv")
+config <- read_csv("Y:/TKeggin/genesis/v1.0/config/5.4_all/config_parameters.csv")
 
 summary_table <- data.frame(run_id,
                             species.total,

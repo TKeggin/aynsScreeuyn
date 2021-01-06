@@ -7,5 +7,6 @@
 speciesRange <- function(pa_dataframe){
   
   species_range <- colSums(pa_dataframe[,-c(1,2)])
+  names(species_range) <- colnames(pa_dataframe)[-c(1,2)]
   return(species_range)
 }

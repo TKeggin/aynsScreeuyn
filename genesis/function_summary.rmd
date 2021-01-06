@@ -1,0 +1,94 @@
+---
+title: "Per cell metric functions"
+output: html_document
+---
+
+```{r echo = FALSE}
+# load functions
+path_function <- "C:/Users/thoma/OneDrive/Documents/aynsScreeuyn/genesis/functions"
+functions     <- list.files(path = path_function,pattern = ".R")
+invisible(lapply(paste(path_function,functions,sep = "/"),source))
+```
+
+## All the functions!
+
+```{r echo = FALSE}
+lsf.str()
+```
+
+## Cluster divergence
+Calculate cluster divergence per cell from a presence/absence data frame.
+
+1. For each cell, identify all the species present.
+
+2. For each species, average the divergence between its constituent clusters.
+
+3. For each cell, average the divergences of all species present in that cell (values from 1 and 2).
+
+```{r}
+clusterDivergence
+```
+
+## Cluster diversity
+Calculate cluster divergence per cell from a presence/absence data frame.
+
+1. For each cell, identify all the species present.
+
+2. For each species, calculate the number of clusters they have across their entire range.
+
+3. For each cell, sum the number of constituent clusters for all species present in that cell.
+
+```{r}
+clusterDiversity
+```
+
+## Calculate trait summary metrics per cell
+Calculate summary metrics for a specified trait per cell. This aggregates the traits of all species present in a cell.
+
+These are currently:
+
+* minimum
+
+* maximum
+
+* range
+
+* standard deviation
+
+Traits in the present simulations are:
+
+* thermal optimum
+
+* niche value
+
+
+```{r}
+traitMetricsCell
+```
+
+## Trait Variance Cell
+Calculates the mean variance of all the mean trait values of each species present in a cell across their entire range.
+
+```{r}
+traitVarianceCell
+```
+
+
+## Continuity
+Calculates a normalised comparison between two chosen metrics.
+
+1. Remove NA values
+
+2. Normalise the metrics between the the global maximum and global minimum values for that time step.
+
+3. Calculate the square root of the squared difference between the normalised metric values per cell.
+
+
+```{r}
+continuity
+```
+
+
+
+
+

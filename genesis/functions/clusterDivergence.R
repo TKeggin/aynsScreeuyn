@@ -13,7 +13,7 @@ clusterDivergence <- function(pa_dataframe,species,landscape){
   # calculate average divergence per species (~ global Fst)
   species_divergence <- speciesDivergence(species)
   
-  # determine the average divergece per cell
+  # determine the average divergence per cell
   no_cells           <- dim(landscape$coordinates)[1] # number of cells
   cluster_divergence <- c()
   for(i in 1:no_cells){
