@@ -1,6 +1,6 @@
 #
 # calculate the mean phylogenetic diversity per cell
-# outputs a
+# outputs a named vector of MPD values
 # requires the phyloMeasures package
 # Thomas Keggin
 #

@@ -5,7 +5,7 @@
 # Thomas keggin
 #
 
-cellRange <- function(pa_dataframe,landscape){
+rangeCell <- function(pa_dataframe,landscape){
   
   # find species ranges
   species_range <- speciesRange(pa_dataframe)
@@ -14,16 +14,16 @@ cellRange <- function(pa_dataframe,landscape){
   species_present <- speciesPresent(pa_dataframe)
   
   no_cells <- dim(landscape$coordinates)[1]
-  cell_range <- c()
+  range_cell <- c()
   
   for(i in 1:no_cells){
     
     # for all the species in a cell, sum their ranges
     x <- mean(species_range[species_present[[i]]$speciesID])
-    cell_range <- c(cell_range,x)
+    range_cell <- c(range_cell,x)
   }
-  names(cell_range) <- rownames(landscape$coordinates)
+  names(range_cell) <- rownames(landscape$coordinates)
   
-  return(cell_range)
+  return(range_cell)
   
 }

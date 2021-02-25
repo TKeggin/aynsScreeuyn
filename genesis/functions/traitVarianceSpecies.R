@@ -5,9 +5,9 @@
 #
 
 
-traitVariance <- function(species,trait){
+traitVarianceSpecies <- function(species,trait){
   
-  # calculate average trait divergence per species
+  # calculate average trait variance per species
   trait_variance <- c()
   for(sp in 1:length(species)){
     
@@ -20,5 +20,5 @@ traitVariance <- function(species,trait){
   }
   names(trait_variance) <- 1:length(species)
   
-  return(trait_variance)
+  return(trait_variance_species)
 }

@@ -1,0 +1,136 @@
+---
+title: "Parameter Exploration"
+output: html_document
+---
+
+Simulation global mean continuity metrics are compared to simulation parameter values. Continuity is the comparison between species richness and either:  
+1. Cluster richness (total number of within species geographic clusters)  
+2. Cluster divergence (mean divergence between clusters within a simulation)
+
+
+```{r, echo = FALSE, message = FALSE}
+library(tidyverse)
+
+# load functions
+path_function <- "C:/Users/thoma/OneDrive/Documents/aynsScreeuyn/genesis/functions"
+functions     <- list.files(path = path_function,pattern = ".R")
+invisible(lapply(paste(path_function,functions,sep = "/"),source))
+
+data <- read_csv("C:/Users/thoma/OneDrive/Documents/PhD/chapter_1/summaries/6.2_all.csv")
+data <- data %>% filter(species.surviving > 9)
+data <- data %>% filter(species.total < 1000)
+
+data$richPopSp <- data$species.surviving/data$clusters.total
+data$richDivSp <- data$species.divergence/data$clusters.divergence.sim
+data$continuity <- continuity2(data$richPopSp,data$richDivSp)
+
+data$species.turnover <- data$species.surviving/data$species.total
+```
+
+## Explore parameters vs continuity
+
+```{r}
+parameters <- c("t_opt",
+                "dispRange",
+                "speciation",
+                "mutationRate",
+                "n_width")
+
+plotData <- pivot_longer(data, cols = c(continuity))
+
+for(i in 1:length(parameters)){
+  
+  plotData[,"parameter"] <- plotData[,parameters[i]]
+  
+  plot <- ggplot(plotData) +
+    geom_point(aes(x=parameter,
+                   y=value,
+                   colour = name)) +
+    ylab("Continuity") +
+    xlab(parameters[i])
+  
+  print(plot)
+  
+}
+
+```
+
+## Explore continuity vs metrics
+
+```{r}
+metrics <- c("species.total",
+             "species.surviving",
+             "species.turnover",
+             "species.divergence",
+             "species.range",
+             "t_opt.evenness",
+             "t_opt.diversity",
+             "t_opt.mean",
+             "niche.mean",
+             "niche.evenness",
+             "niche.diversity",
+             "niche.sd",
+             "richness.avg",
+             "richness.sd",
+             "richness.discrepancy",
+             "clusters.total",
+             "clusters.divergence.sim")
+
+
+plotData <- data
+
+for(i in 1:length(metrics)){
+  
+  plotData[,"metric"] <- plotData[,metrics[i]]
+  
+  plot <- ggplot(plotData) +
+    geom_point(aes(x=mutationRate,
+                   y=metric)) +
+    ylab(metrics[i]) +
+    xlab("mutation rate")
+  
+  print(plot)
+  
+}
+
+```
+
+## Explore parameters vs metrics
+
+
+```{r}
+
+
+plotData <- data
+
+for(p in 1:length(parameters)){
+  
+  plotData[,"parameter"] <- plotData[,parameters[p]]
+  
+  for(i in 1:length(metrics)){
+    
+    plotData[,"metric"] <- plotData[,metrics[i]]
+    
+    plot <- ggplot(plotData) +
+      geom_point(aes(x=parameter,
+                     y=metric)) +
+      ylab(metrics[i]) +
+      xlab(parameters[p])
+    
+    print(plot)
+    
+  }
+
+}
+```
+
+
+
+
+
+
+
+
+
+
+

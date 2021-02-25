@@ -2,11 +2,11 @@
 # calculate trait cell variance per cell from a presence/absence dataframe
 # returns a vector of the means of all trait variances of each species present in a cell
 # similar to the cluster_ functions
-# dependent on speciesPresent() and speciesDivergence
+# dependent on speciesPresent() and traitVariance()
 # Thomas Keggin
 #
 
-traitVarianceCell <- function(pa_dataframe,species,landscape,trait){
+traitVarianceCellSpecies <- function(pa_dataframe,species,landscape,trait){
   
   # find species present in each cell
   species_present <- speciesPresent(pa_dataframe)
@@ -14,7 +14,7 @@ traitVarianceCell <- function(pa_dataframe,species,landscape,trait){
   # calculate variance per species
   trait_variance <- traitVariance(species,"niche")
   
-  # determine the average variance per cell
+  # determine the average variance of all the species present in a cell
   no_cells           <- dim(landscape$coordinates)[1] # number of cells
   trait_variance_cell <- c()
   for(i in 1:no_cells){
@@ -25,7 +25,7 @@ traitVarianceCell <- function(pa_dataframe,species,landscape,trait){
   }
   names(trait_variance_cell) <- rownames(landscape$coordinates)
   
-  return(trait_variance_cell)
+  return(trait_variance_cell_species)
 }
 
 

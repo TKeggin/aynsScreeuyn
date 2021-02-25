@@ -1,0 +1,139 @@
+---
+title: "Exciting Analysis"
+output: html_document
+---
+  
+#### Load packages and data.
+The data are summary metrics computed by batchSummary.R
+Remove runs that resulted in no species.
+
+```{r, message = FALSE}
+library(tidyverse)
+library(shapper)
+library(gridExtra)
+library(readxl)
+
+ecoregions           <- read_csv("C:/Users/thoma/OneDrive/Documents/PhD/chapter_1/analysis/regional_continuity/01_sim_ecoregions.csv")
+regional_comparisons <- read_csv("C:/Users/thoma/OneDrive/Documents/PhD/chapter_1/analysis/regional_continuity/02_regional_continuity_comparisons.csv")
+regional_continuity  <- read_csv("C:/Users/thoma/OneDrive/Documents/PhD/chapter_1/summaries/regional_continuity.csv")
+run_summaries        <- read_csv("C:/Users/thoma/OneDrive/Documents/PhD/chapter_1/summaries/all.csv")
+
+# calculate overall run continuity ####
+
+run_summaries$continuity_all <- run_summaries$species.surviving/run_summaries$clusters.total
+
+# make data joinable ####
+colnames(regional_continuity)[4]  <- "continuity_regional"
+colnames(regional_comparisons)[4] <- "continuity_comparisons"
+
+regional_continuity$id <- paste0(regional_continuity$batch,"_",regional_continuity$run)
+regional_continuity    <- regional_continuity[,3:5]
+
+regional_comparisons$id <- paste0(regional_comparisons$batch,"_",regional_comparisons$run)
+regional_comparisons    <- regional_comparisons[,3:5]
+
+run_summaries$id       <- paste0(run_summaries$batch_id,"_all_",run_summaries$run_id)
+
+# join the data ####
+
+data_regional   <- inner_join(run_summaries,regional_continuity, by = "id")
+data_comparison <- inner_join(run_summaries,regional_comparisons, by = "id")
+
+print("data_regional")
+colnames(data_regional)
+print("data_comparison")
+colnames(data_comparison)
+
+```
+
+#### Plot out continuity values of each region
+
+Calculate the overall continuity of each run and explore the impact of the different parameters.
+
+```{r}
+
+data <- data_regional %>% filter(species.surviving > 5)
+
+parameters <- c("t_opt","dispRange","speciation","initialAbundance")
+
+
+for(parameter in parameters){
+  plotData <- data.frame(data$continuity_all,data[,parameter])
+  
+  regression <- lm(plotData[,1] ~ plotData[,2])
+  
+  print(ggplot(data, aes(x=plotData[,2], y=continuity_all))+
+    labs(x=parameter, y="continuity_all") +
+    ylim(c(0,1)) +
+    scale_fill_viridis_c() +
+    geom_point(aes(fill=richness.discrepancy),colour = "black", shape =21, size = 2) +
+    #geom_abline(slope = regression$coefficients[2],
+    #            intercept = regression$coefficients[1]) +
+  theme_classic()
+  )
+}
+```
+
+The same again, but split into biological realms as according to Spalding et al. 2007.
+
+```{r}
+
+parameters <- c("t_opt","dispRange","speciation","initialAbundance")
+
+
+for(parameter in parameters){
+  plotData <- data.frame(data$continuity_regional,data[,parameter])
+  
+  regression <- lm(plotData[,1] ~ plotData[,2])
+  
+  print(ggplot(data, aes(x=plotData[,2], y=continuity_regional))+
+    labs(x=parameter, y="continuity_regional") +
+    ylim(c(0,1)) +
+    geom_point(aes(fill=realm),colour = "black", shape =21, size = 2) +
+  theme_classic()
+  )
+}
+
+```
+
+#### Regional continuity comparisons against parameter values
+
+```{r}
+compare <- unique(data_comparison$comparison)
+titles  <- c("Central Indo-Pacific vs Tropical Atlantic",
+             "Central Indo-Pacific vs Tropical Eastern Pacific",
+             "Central Indo-Pacific vs Western Indo-Pacific",
+             "Tropical Atlantic vs Tropical Eastern Pacific",
+             "Tropical Atlantic vs Western Indo-Pacific",
+             "Tropical Eastern Pacific vs Western Indo-Pacific")
+
+for(i in 1:length(compare)){
+  
+  data <- data_comparison %>% filter(species.surviving > 5 & comparison == compare[i])
+  
+  parameters <- c("t_opt","dispRange","speciation","initialAbundance")
+  
+  
+  for(parameter in parameters){
+    plotData <- data.frame(data$continuity_comparisons,data[,parameter])
+    
+    regression <- lm(plotData[,1] ~ plotData[,2])
+    
+    print(ggplot(data, aes(x=plotData[,2], y=continuity_comparisons))+
+      labs(x=parameter, y=compare[i]) +
+      ggtitle(titles[i]) +
+      ylim(c(0,1)) +
+      geom_point() +
+      #geom_point(aes(fill=comparison),colour = "black", shape =21, size = 2) +
+      #geom_abline(slope = regression$coefficients[2],
+      #            intercept = regression$coefficients[1]) +
+    theme_classic()
+    )
+  }
+}
+
+
+```
+
+
+
