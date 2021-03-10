@@ -2,58 +2,182 @@
 title: "Parameter Exploration"
 output: html_document
 ---
+<style type="text/css">
+.main-container {
+  max-width: 1800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+</style>
 
-Simulation global mean continuity metrics are compared to simulation parameter values. Continuity is the comparison between species richness and either:  
-1. Cluster richness (total number of within species geographic clusters)  
-2. Cluster divergence (mean divergence between clusters within a simulation)
+```{r set-options, echo=FALSE, cache=FALSE}
+options(width = 10000)
+```
+
+There are 2 measures of continuity to be explored:  
+  
+* **contStructure**  is total extant species / total extant clusters.  
+* **contDivergence** is MPD between extant species / MPD between extant clusters.
 
 
-```{r, echo = FALSE, message = FALSE}
+There are 5 parameters:
+
+* **t_opt**:        the initial thermal optimum of the first species in a simulation.  
+* **dispRange**:    the dispersal range of all species in a simulation.  
+* **speciation**:   the distance between clusters at which a new species is formed.  
+* **mutationRate**: the standard deviation of the gaussian distribution which is used to mutate all traits.  
+* **n_width**:      the competitive niche width of all species in the simulation. 
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 library(tidyverse)
+library(MuMIn)
+library(gridExtra)
 
 # load functions
 path_function <- "C:/Users/thoma/OneDrive/Documents/aynsScreeuyn/genesis/functions"
 functions     <- list.files(path = path_function,pattern = ".R")
 invisible(lapply(paste(path_function,functions,sep = "/"),source))
 
+# load data
 data <- read_csv("C:/Users/thoma/OneDrive/Documents/PhD/chapter_1/summaries/6.2_all.csv")
 data <- data %>% filter(species.surviving > 9)
 data <- data %>% filter(species.total < 1000)
 
-data$richPopSp <- data$species.surviving/data$clusters.total
-data$richDivSp <- data$species.divergence/data$clusters.divergence.sim
-data$continuity <- continuity2(data$richPopSp,data$richDivSp)
+# calculate metrics
+data$contStructure <- data$species.surviving/data$clusters.total
+data$contDivergence <- data$species.divergence/data$clusters.divergence.sim
+data$strVdiv   <- continuity(data$contStructure,data$contDivergence)
 
 data$species.turnover <- data$species.surviving/data$species.total
 ```
 
-## Explore parameters vs continuity
+# 1. Results
+## 1.1 Parameters vs contintuity
+### 1.1.1 Visualise individual relationships
 
-```{r}
+```{r, echo = FALSE, message = FALSE, tidy = TRUE}
 parameters <- c("t_opt",
                 "dispRange",
                 "speciation",
                 "mutationRate",
                 "n_width")
 
-plotData <- pivot_longer(data, cols = c(continuity))
+conts <- c("contStructure",
+           "contDivergence")
 
-for(i in 1:length(parameters)){
+plotData_1 <- pivot_longer(data, cols = c(contDivergence,
+                                        contStructure))
+grobs <- list()
+plot_no <- 1
+for(c in 1:length(conts)){
   
-  plotData[,"parameter"] <- plotData[,parameters[i]]
+  plotData <- plotData_1 %>% filter(name == conts[c])
+
+  for(i in 1:length(parameters)){
+    
+    plotData[,"parameter"] <- plotData[,parameters[i]]
+    
+    plot <- ggplot(plotData, aes(x=parameter,
+                                 y=value)) +
+      geom_point() +
+      ylab(conts[c]) +
+      xlab(parameters[i]) +
+      stat_smooth()
+    
+    grobs[[plot_no]] <- plot
+  plot_no <- plot_no +1
+  }
+}
+
+do.call("grid.arrange", c(grobs, ncol=5))
+```
+
+
+### 1.1.2 Simple additive multiple linear regression
+
+```{r message=FALSE, warning=FALSE, echo = FALSE}
+
+modelData <- data
+polynominal <- 2
+
+models <- list()
+for(c in 1:length(conts)){
   
-  plot <- ggplot(plotData) +
-    geom_point(aes(x=parameter,
-                   y=value,
-                   colour = name)) +
-    ylab("Continuity") +
-    xlab(parameters[i])
+  modelData[,"response"] <- modelData[,conts[c]]
   
-  print(plot)
+  model <- lm(response ~ 
+                poly(t_opt,polynominal) + 
+                poly(dispRange,polynominal) + 
+                poly(speciation,polynominal) + 
+                poly(mutationRate,polynominal) + 
+                poly(n_width,polynominal),
+              data = modelData,
+              na.action = "na.fail")
   
+  models[[conts[c]]] <- model
+}
+
+structure_dredged  <- dredge(models[[1]])
+divergence_dredged <- dredge(models[[2]])
+
+```
+
+**Structure continuity:**
+```{r message=FALSE, warning=FALSE}
+summary(models$contStructure)
+```
+
+**Divergence continuity:**
+```{r message=FALSE, warning=FALSE}
+summary(models$contDivergence)
+```
+Retaining third level polynomials doesn't seem realistic, so will retain up to second level for dispRange and speciation.  
+
+### 1.1.3 Multiple linear regression with filtered terms and interactions
+```{r message=FALSE, warning=FALSE, echo = FALSE}
+
+modelData <- data
+polynominal <- 2
+
+models <- list()
+for(c in 1:length(conts)){
+  
+  modelData[,"response"] <- modelData[,conts[c]]
+  
+  model <- lm(response ~ 
+                poly(dispRange,polynominal) * 
+                poly(speciation,polynominal),
+              data = modelData,
+              na.action = "na.fail")
+  
+  models[[conts[c]]] <- model
 }
 
 ```
+**Structure continuity:**
+```{r message=FALSE, warning=FALSE}
+summary(models$contStructure)
+```
+**Divergence continuity:**
+```{r message=FALSE, warning=FALSE}
+summary(models$contDivergence)
+```
+
+Next steps:
+* plot model prediction values over data  
+* generate model predictions holding parameters constant (min, max, mean)
+
+
+
+## Parameters vs components of continuity
+
+
+
+
+
+
+
+
 
 ## Explore continuity vs metrics
 
@@ -79,20 +203,25 @@ metrics <- c("species.total",
 
 plotData <- data
 
-for(i in 1:length(metrics)){
+for(c in 1:length(conts)){
   
-  plotData[,"metric"] <- plotData[,metrics[i]]
+  plotData[,"contintuity"] <- plotData[,conts[c]]
   
-  plot <- ggplot(plotData) +
-    geom_point(aes(x=mutationRate,
-                   y=metric)) +
-    ylab(metrics[i]) +
-    xlab("mutation rate")
-  
-  print(plot)
-  
+  for(i in 1:length(metrics)){
+    
+    
+    plotData[,"metric"] <- plotData[,metrics[i]]
+    
+    plot <- ggplot(plotData) +
+      geom_point(aes(x=metric,
+                     y=continuity)) +
+      ylab(conts[c]) +
+      xlab(metrics[i])
+    
+    print(plot)
+    
+  }
 }
-
 ```
 
 ## Explore parameters vs metrics
@@ -120,9 +249,38 @@ for(p in 1:length(parameters)){
     print(plot)
     
   }
-
+  
 }
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
